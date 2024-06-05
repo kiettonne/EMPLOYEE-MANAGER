@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../stylesheets/style.css">
+    <title>ADD USER</title>
+  </head>
+  <body onload="setFocusName()">
+    <div id="head">
+      <form id="userForm">
+        <a onclick="redirectToHome()" href="/home" style="font-size: 10px; text-decoration: none"
+          ><h1>Trang chủ</h1></a
+        >
+        <label for="userId" >ID:</label><br />
+        <input type="text" id="userId" name="userId" readonly value="" /><br />
+        <label for="name" >Name:</label><br />
+        <input type="text" id="name" name="name"/><br />
+        <label for="email" >Email:</label><br />
+        <input type="email" id="email" name="email" /><br />
+        <label for="birthYear">BirthYear:</label>
+        <input type="text" name="birthYear" id="birthYear"/><br />
+        <input type="button" id="addButton" value="Add" />
+        <input type="button" onclick="submitUsers()" value="Submit" />
+        <div>
+          <input type="file"/>
+          <input type="button" onclick="importJSON()" value="import with JSON file" />
+        </div>
+        <div id="messages" style="margin-top: 15px"></div>
+        <div id="listUsers" style="margin-top: 20px;"></div>
+      </form>
+    </div>
+    <script>
+      let autoIncremetId = 1;
+       function generateAutoIncrementId() {
+
+        const id = `NV${String(autoIncremetId).padStart(3, '0')}`;
+        autoIncremetId++;
+        return id;
+      }
+
+      function generateTable(users) {
+        let rows = users
+          .map((user) => `<tr><td>${user.userId}</td><td>${user.name}</td><td>${user.email}</td><td>${user.birthYear}</td></tr>`)
+          .join("");
+        return `<table>
+                  <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>BirthYear</th>
+                  </tr>
+                  ${rows}
+                </table>`;
+      }
+      let users = [];
+      document
+        .getElementById("addButton")
+        .addEventListener("click", function () {
+          const userId = generateAutoIncrementId();
+          const name = document.getElementById("name").value;
+          const email = document.getElementById("email").value;
+          const birthYear = document.getElementById("birthYear").value;
+          const emailExists = users.some((user) => user.email === email);
+          if (!name || !email || !birthYear || isNaN(birthYear)) {
+            outputMessage("Please enter valid name, email, and birth year", "red");
+          } else if (emailExists) {
+            outputMessage("Email already exists", "red");
+          } else {
+            users.push({ userId: userId, name: name, email: email, birthYear: birthYear });
+            document.getElementById("userId").value = userId;
+            document.getElementById("listUsers").innerHTML = generateTable(users);
+            outputMessage(`The user [${name}, ${email}] added`, `red`);
+          }
+        });
+      function outputMessage(messages, color) {
+        var message = document.getElementById("messages");
+        message.textContent = messages;
+        message.style.color = color;
+      }
+      function setFocusName() {
+        document.getElementById("name").focus();
+      }
+      function importJSON() {
+        document
+          .getElementById("userForm")
+          .addEventListener("click", function (event) {
+            event.preventDefault();
+            var fileInput = document.querySelector('input[type="file"]');
+            var file = fileInput.files[0];
+            var reader = new FileReader();
+
+            reader.onload = function (event) {
+              var contents = event.target.result;
+              var json = JSON.parse(contents);
+
+              fetch("/create", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(json),
+              })
+                .then((response) => response.json())
+                .then((data) => {
+                  console.log("response from server", data);
+                  resetForm();
+                  json = "";
+                  fileInput.value = "";
+                  alert(data.message);
+                })
+                .catch((error) => {
+                  console.error("Error:", error);
+                });
+            };
+
+            reader.readAsText(file);
+          });
+      }
+
+      function submitUsers() {
+        const birthYear = document.getElementById("birthYear").value;
+        users.forEach(user => {user.birthYear = birthYear});
+        console.log("🚀 ~ submitUsers ~ users:", users);
+
+        fetch("/create", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(users),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log("response from server", data);
+            resetForm();
+            updateTableIds();
+            alert(data.message);
+          })
+          .catch((err) => console.log(err));
+      }
+      function resetForm() {
+        document.getElementById("userForm").reset();
+        document.getElementById("messages").textContent = "";
+        setFocusName();
+        users = [];
+      }
+
+      function redirectToHome(userId) {
+        window.location.href = `/home`;
+      }
+    </script>
+  </body>
+</html>

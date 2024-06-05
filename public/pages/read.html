@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../stylesheets/readStyle.css">
+    <title>Search Form</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Search Form</h1>
+        <a onclick="redirectToHome()" href="/home" class="home-link"><h1>Trang chủ</h1></a>
+        <form id="searchForm">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name"><br><br>
+            
+            <label for="email">Email:</label>
+            <input type="text" id="email" name="email"><br><br>
+            
+            <label for="birthYearFor">Birth Year From:</label>
+            <input type="number" id="birthYearFor" name="birthYearFor"><br><br>
+            
+            <label for="birthYearTo">Birth Year To:</label>
+            <input type="number" id="birthYearTo" name="birthYearTo"><br><br>
+            
+            <button type="submit">Search</button>
+        </form>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        document.getElementById("searchForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+            const searchParams = new URLSearchParams(formData).toString();
+
+            fetch("/read?" + searchParams)
+                .then(response => response.json())
+                .then(data => {
+
+                    data.sort((a, b) => a.birthYear - b.birthYear);
+
+                    const resultsDiv = document.getElementById("results");
+                    resultsDiv.innerHTML = ""; // Xóa kết quả tìm kiếm trước đó
+
+                    const table = document.createElement("table");
+                    table.id = "customers";
+
+                    const thead = document.createElement("thead");
+                    const tbody = document.createElement("tbody");
+                    const headerRow = document.createElement("tr");
+
+                    // Tạo tiêu đề cột
+                    const columnNames = ["ID", "Name", "Email", "BirthYear"];
+                    columnNames.forEach(name => {
+                        const th = document.createElement("th");
+                        th.textContent = name;
+                        headerRow.appendChild(th);
+                    });
+                    thead.appendChild(headerRow);
+                    table.appendChild(thead);
+
+                    // Thêm dữ liệu vào các hàng trong body
+                    data.forEach(user => {
+                        const row = document.createElement("tr");
+
+                        const idCell = document.createElement("td");
+                        idCell.textContent = user.id;
+                        row.appendChild(idCell);
+
+                        const nameCell = document.createElement("td");
+                        nameCell.textContent = user.name;
+                        row.appendChild(nameCell);
+
+                        const emailCell = document.createElement("td");
+                        emailCell.textContent = user.email;
+                        row.appendChild(emailCell);
+
+                        const birthYearCell = document.createElement("td");
+                        birthYearCell.textContent = user.birthYear || ""; // Nếu năm sinh không có giá trị, hiển thị trống
+                        row.appendChild(birthYearCell);
+
+                        tbody.appendChild(row);
+                    });
+                    table.appendChild(tbody);
+
+                    resultsDiv.appendChild(table);
+                })
+
+        })
+        function redirectToHome() {
+            window.location.href = "/home";
+        }
+    </script>
+</body>
+</html>

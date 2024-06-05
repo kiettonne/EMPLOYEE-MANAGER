@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Selected Users</title>
+    <link rel="stylesheet" href="../stylesheets/updateStyle.css">
+  </head>
+  <body>
+    <h1>Update Selected Users</h1>
+    <a
+      onclick="redirectToHome()"
+      href="/home"
+      style="font-size: 10px; text-decoration: none"
+      ><h1>Trang chủ</h1></a
+    >
+    <div id="update-forms-container"></div>
+    <button onclick="updateForm()" type="submit" style="margin-top: 10px;">Submit</button>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const params = new URLSearchParams(window.location.search);
+        const userIds = params.get("userIds");
+        const userIdArray = userIds.split(",");
+        const updateFormsContainer = document.getElementById(
+          "update-forms-container"
+        );
+
+        userIdArray.forEach((userId) => {
+          fetch(`/user?id=${userId}`, {
+            method: "GET",
+          })
+            .then((response) => {
+              if (response.ok) {
+                return response.json();
+              } else {
+                throw new Error("Failed to fetch user data.");
+              }
+            })
+            .then((userData) => {
+              const form = document.createElement("form");
+              form.classList.add("update-form");
+
+              const hiddenInput = document.createElement("input");
+              hiddenInput.type = "hidden";
+              hiddenInput.name = "user_ids";
+              hiddenInput.value = userId;
+              form.appendChild(hiddenInput);
+
+              const nameLabel = document.createElement("label");
+              nameLabel.textContent = "Name:";
+              const nameInput = document.createElement("input");
+              nameInput.type = "text";
+              nameInput.name = "name";
+              nameInput.value = userData[0].name;
+              form.appendChild(nameLabel);
+              form.appendChild(nameInput);
+
+              const emailLabel = document.createElement("label");
+              emailLabel.textContent = "Email:";
+              const emailInput = document.createElement("input");
+              emailInput.type = "email";
+              emailInput.name = "email";
+              emailInput.value = userData[0].email;
+              form.appendChild(emailLabel);
+              form.appendChild(emailInput);
+
+              updateFormsContainer.appendChild(form);
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              alert("Failed to fetch user data. Please try again.");
+            });
+        });
+      });
+      function updateForm(){
+        const forms = document.querySelectorAll(".update-form");
+        forms.forEach((form) => {
+          const formData = new FormData(form);
+          const id = formData.get("user_ids");
+          const name = formData.get("name");
+          const email = formData.get("email");
+          fetch("/update-many", {
+            method: "PUT",
+            body: JSON.stringify({ id, name, email }),
+            headers: {
+                "Content-Type": "application/json"
+            }
+          })
+            .then((response) => {
+              if (response.ok) {
+                window.location.href = "/home";
+              } else {
+                throw new Error("Failed to update users.");
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              alert("Failed to update users. Please try again.");
+            });
+        });                
+    }
+    </script>
+  </body>
+</html>

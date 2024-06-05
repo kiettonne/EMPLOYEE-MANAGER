@@ -1,0 +1,125 @@
+ *{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+/*HOME.html*/
+:root {
+  --secondary-light: hsl(92, 45%, 59%);
+  --primary-color: hsl(0, 0%, 100%);
+  --secondary: hsl(100, 7%, 8%);
+
+  font-family: "inter", sans-serif;
+  font-size: 14px;
+}
+
+div {
+  display: flex;
+  gap: 1rem;
+  
+  /* width: 50%;
+  max-width: 375px;
+  margin: auto;
+  padding: 3rem;
+  background-color: #8fc994;
+  border-radius: 0.85rem; */
+}
+
+div button{
+  padding: 10px 20px;
+  cursor: pointer;
+  border: none;
+  background-color: rgb(66, 117, 84);
+  color: white;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+#customers {
+    font-family: 'Times New Roman', serif, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  #customers td,
+  #customers th {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+  }
+
+  #customers tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+
+  #customers tr:hover {
+    background-color: #ddd;
+  }
+
+  #customers th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #04aa6d;
+    color: white;
+  }
+#top {
+  display: flex;
+  padding: 50px;
+  background-color: #04aa6d;
+  justify-content: space-around;
+  gap: 1rem;
+}
+#top-til{
+  color: #f2f2f2;
+  justify-content: left;
+}
+
+/* create */
+
+#head {
+  text-align: center;
+  justify-content: center;
+  margin-top: 20px;
+  border: 10px solid #f2f2f2;
+  border-radius: 5px;
+  padding: 20px;
+  display: inline-block;
+
+}
+
+#userForm {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+#userForm label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+#userForm input[type="text"],
+#userForm input[type="email"] {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  box-sizing: border-box;
+}
+
+#userForm input[type="button"] {
+  width: 100%;
+  padding: 10px;
+  background-color: #04aa6d;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 15px;
+}
+
+#userForm input[type="file"] {
+  width: 100%;
+  margin-top: 15px;
+}
+
+#userForm input[type="button"]:hover {
+  background-color: #04aa6d;
+}

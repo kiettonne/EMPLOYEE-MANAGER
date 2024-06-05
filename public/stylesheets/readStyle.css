@@ -1,0 +1,84 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+}
+
+h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+form {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+input[type="text"],
+input[type="number"] {
+  width: calc(100% - 16px);
+  padding: 8px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+button[type="submit"] {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button[type="submit"]:hover {
+  background-color: #0056b3;
+}
+
+#results {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #fff; /* Thay đổi màu nền */
+}
+
+#results table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#results th,
+#results td {
+  padding: 8px;
+  border: 1px solid #ddd; /* Thay đổi màu viền */
+}
+
+#results th {
+  background-color: #04aa6d; /* Thay đổi màu nền của tiêu đề cột */
+}
+
+/* #results th:first-child,
+#results td:first-child {
+  border-left:color(from color srgb r g b); /* Loại bỏ đường viền bên trái cho cột đầu tiên 
+}
+
+#results th:last-child,
+#results td:last-child {
+  border-right: none; /* Loại bỏ đường viền bên phải cho cột cuối cùng 
+} */

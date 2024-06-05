@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../stylesheets/style.css">
+    <title>CheckList</title>
+  </head>
+  <body>
+    <header id="top">
+      <h1 id="top-til">List of residents</h1>
+      
+      <div>
+        <button onclick="redirectToAddUser()"> Add </button> 
+        <button onclick="redirectToSearch()"> Search </button>
+        <button id="deleteSelected" onclick="deleteSelectedRows()" > Delete </button>
+        <button id="updateSelected" onclick="redirectToUpdate()" > Update </button>
+        <button id="deleteAllSel" onclick="deleteAllUsers()"> Delete All </button>
+      </div>
+    </header>
+
+    <table id="customers">
+      <tr>
+        <th scope="col">
+          <input class="form-check-input" type="checkbox" name="select-all" id="select-all"/>
+        </th>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>BirthYear</th>
+        <th></th>
+        <th></th>
+      </tr>
+    </table>
+
+    <form id="edit-form" style="display: none">
+      <input type="hidden" id="edit-user-id" name="user_id" />
+      <label for="edit-name">Name:</label>
+      <input type="text" id="edit-name" name="name" />
+      <label for="edit-email">Email:</label>
+      <input type="email" id="edit-email" name="email" />
+      <button type="submit">Submit</button>
+    </form>
+
+    <script>
+      //Fetch data from API
+      fetch("/users") // Replace with your API endpoint
+        .then((response) => response.json())
+        .then((data) => {
+          const table = document.getElementById("customers");
+          let num = 1;
+          data.forEach((item) => {
+            const row = table.insertRow();
+            const cell = row.insertCell();
+            const cell0 = row.insertCell();
+            const cell1 = row.insertCell();
+            const cell2 = row.insertCell();
+            const cell3 = row.insertCell();
+            const cell4 = row.insertCell();
+            const cell5 = row.insertCell();
+
+            cell.innerHTML = ` <th scope="row">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" onclick='showBtn()'>
+                    </div>
+                </th>`;
+            cell0.textContent = item.id;
+            cell1.textContent = item.name;
+            cell2.textContent = item.email;
+            cell3.textContent = item.birthYear;
+            cell4.innerHTML = ` <button  onclick="redirectToUpdate('${item._id}')">Edit</button>`;
+            cell5.innerHTML = `<button onclick="redirectToConfirmation('${item._id}')">Delete</button>`;
+          });
+        })
+        .catch((error) => console.error("Error:", error));
+        
+        function updateTableIds() {
+        fetch("/users")
+          .then((response) => response.json())
+          .then((data) => {
+            const table = document.getElementById("customers");
+            // Xóa các hàng cũ trong bảng
+            while (table.rows.length > 1) {
+              table.deleteRow(1);
+            }
+            // Thêm các người dùng mới vào bảng
+            let num = 1;
+            data.forEach((item) => {
+              const row = table.insertRow();
+              const cell0 = row.insertCell();
+              cell0.textContent = num;
+              num++;
+            });
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+      
+      function showBtn() {
+        var deleteAll = document.getElementById("deleteAllSel");
+        var deleteSel = document.getElementById("deleteSelected");
+        var updateSel = document.getElementById("updateSelected");
+        deleteAll.style.display = "block";
+        deleteSel.style.display = "block";
+        updateSel.style.display = "block";
+      }
+      // EDIT
+      function editUser(userId, name, email) {
+        document.getElementById("edit-user-id").value = userId;
+        document.getElementById("edit-name").value = name;
+        document.getElementById("edit-email").value = email;
+        document.getElementById("edit-form").style.display = "block";
+      }
+      document
+        .getElementById("edit-form")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          const formData = new FormData(this);
+          const userId = formData.get("user_id");
+          const name = formData.get("name");
+          const email = formData.get("email");
+          const birthYear = formData.get("birthYear");
+
+          fetch(`/update?id=${userId}`, {
+            method: "PUT",
+            body: JSON.stringify({ name, email, birthYear }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          })
+            .then((response) => {
+              if (response.ok) {
+                location.reload(); // Refresh the page after successful update
+              } else {
+                throw new Error("Failed to update user");
+              }
+            })
+            .catch((error) => console.error("Error:", error));
+        });
+
+      // DELETE
+      function redirectToConfirmation(userId) {
+        window.location.href = `/delete?userId=${userId}`;
+      }
+      function deleteUser(userIds) {
+        fetch(`/user?id=${userIds}`, {
+          method: "DELETE",
+        })
+          .then((response) => {
+            if (response.ok) {
+              location.reload(); // làm mới trang khi xóa thành công
+            } else {
+              throw new Error("Failed to delete user");
+            }
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+
+      function deleteSelectedRows() {
+        const checkboxes = document.querySelectorAll('#customers input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                const row = checkbox.closest("tr");
+                const userId = row.querySelector("button").getAttribute("onclick").match(/'([^']+)'/)[1];
+                deleteUser(userId);
+            }
+        });
+      }
+
+      var deleteAll = document.getElementById("deleteAllSel");
+      var deleteSel = document.getElementById("deleteSelected");
+      var updateSel = document.getElementById("updateSelected");
+
+      document.addEventListener("DOMContentLoaded", function () {
+        document
+          .getElementById("select-all")
+          .addEventListener("click", function () {
+            const checkboxes = document.querySelectorAll(
+              '#customers input[type="checkbox"]'
+            );
+            checkboxes.forEach((checkbox) => {
+              deleteAll.style.display = "block";
+              deleteSel.style.display = "block";
+              updateSel.style.display = "block";
+              checkbox.checked = this.checked;
+            });
+          });
+      });
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const selectAllCheckbox = document.getElementById("select-all");
+        document.getElementById("select-all").addEventListener("change", function() {
+          const checkboxes = document.querySelectorAll('#customers input[type="checkbox"]');
+          checkboxes.forEach((checkbox) => {
+              checkbox.checked = this.checked;
+          });
+        });
+        const deleteSelectedButton = document.getElementById("deleteAllSel");
+
+        selectAllCheckbox.addEventListener("change", function () {
+          const checkboxes = document.querySelectorAll('#customers input[type="checkbox"]');
+          checkboxes.forEach((checkbox) => {
+            checkbox.checked = selectAllCheckbox.checked;
+          });
+        });
+
+        deleteSelectedButton.addEventListener("click", function () {
+          const checkboxes = document.querySelectorAll('#customers input[type="checkbox"]');
+          const checkedCheckboxes = Array.from(checkboxes).filter((checkbox) => checkbox.checked); 
+
+          if (selectAllCheckbox.checked) {
+            deleteAllUsers();
+          } else {
+            const userIds = [];
+            checkedCheckboxes.forEach((checkbox) => {
+              const row = checkbox.closest("tr");
+              const userId = row.querySelector("button").getAttribute("onclick").match(/'([^']+)'/)[1];
+              userIds.push(userId);
+            });
+            deleteUser(userIds);
+          }
+        });
+      });
+
+      function deleteAllUsers() {
+        const checkboxes = document.querySelectorAll('#customers input[type="checkbox"]');
+        const checkedCheckboxes = Array.from(checkboxes).filter((checkbox) => checkbox.checked);
+        if (checkedCheckboxes.length === checkboxes.length) {
+          fetch("/users", {
+            method: "DELETE"
+          })
+          .then((response) => {
+            if (response.ok) {
+              location.reload();
+            } else {
+              throw new Error("Failed to delete all users");
+            }
+          })
+          .catch((error) => console.error("Error:", error));
+        } else {
+          alert("Please select all users to delete.");
+        }
+      }
+      
+      //Add User
+      function redirectToAddUser() {
+        window.location.href = `/add-user`;
+      }
+      function redirectToSearch() {
+        window.location.href = `/search`;
+      }
+      function redirectToUpdate(id) {
+        if(id){
+          window.location.href = `/update?userIds=${id}`
+        }else{
+          const checkboxes = document.querySelectorAll(
+              '#customers input[type="checkbox"]'
+            );
+            let selectedUserIds = [];
+            checkboxes.forEach((checkbox) => {
+                selectedUserIds = selectedUserIds.concat(
+                    checkbox.checked ? [checkbox.closest("tr").querySelector("button").getAttribute("onclick").match(/'([^']+)'/)[1]] : []
+               
+                )
+            });
+        console.log("🚀 ~ redirectToUpdate ~ selectedUserIds:", selectedUserIds)
+        if (selectedUserIds.length > 0) {
+          window.location.href = `/update?userIds=${selectedUserIds.join(
+            ","
+          )}`;
+        } else {
+          alert("Please select at least one user to update.");
+        }
+        }
+      }
+    </script>
+  </body>
+</html>

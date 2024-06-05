@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+    <div
+      style="
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      "
+    >
+      <h2>Confirmation</h2>
+      <p>Are you sure you want to delete this user?</p>
+      <div
+        style="
+          display: flex;
+          flex-direction: row;
+          justify-content: center;
+          align-items: center;
+        "
+      >
+        <button
+          style="margin-left: 10px; margin-right: 10px"
+          onclick="deleteUser()"
+        >
+          Delete
+        </button>
+        <button
+          style="margin-left: 10px; margin-right: 10px"
+          onclick="cancel()"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+
+    <script>
+      function deleteUser() {
+        const params = new URLSearchParams(window.location.search);
+        const userId = params.get("userId");
+        fetch(`/user?id=${userId}`, {
+          method: "DELETE",
+        })
+          .then((response) => {
+            if (response.ok) {
+              alert("User delete successfully");
+              window.location.href = "/home";
+            } else {
+              throw new Error("Failed to delete user");
+            }
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+
+      function cancel() {
+        window.location.href = "/home";
+      }
+    </script>
+  </body>
+</html>
